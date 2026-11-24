@@ -168,7 +168,7 @@ msgstr ""
 
 msgid "condition_alert_fullUrlLimitationLink"
 msgstr ""
-"https://github.com/FelisCatus/SwitchyOmega/wiki/Chromium-Full-URL-Limitation"
+"https://github.com/jpbaking/air-switch/blob/main/FAQ.md#full-url-matching-on-https"
 
 #, fuzzy
 msgid "condition_group_default"

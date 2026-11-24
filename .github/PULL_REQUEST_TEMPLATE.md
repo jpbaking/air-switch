@@ -3,9 +3,7 @@
 - [ ] Improvement
 - [ ] New feature
 
-(Note: Translations and typo fixes should be done on https://hosted.weblate.org/projects/switchyomega/ instead of PR.)
-
-Please explain the changes in details here...
+Please explain the changes in detail here...
 
 #### Compatibility
 

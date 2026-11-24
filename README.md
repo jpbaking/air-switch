@@ -1,117 +1,50 @@
-AirSwitch, forked from SwitchyOmega compatible with manifest v3
-============
+# AirSwitch
 
-[Chrome Web Store](https://chromewebstore.google.com/detail/pfnededegaaopdmhkdmcofjmoldfiped)
+A strictly offline, Manifest V3 proxy switcher for Chromium-based browsers (Chrome, Brave, Edge) and Firefox, forked from [ZeroOmega](https://github.com/zero-peak/ZeroOmega) / [SwitchyOmega](https://github.com/FelisCatus/SwitchyOmega).
 
-[Microsoft Edge Addons](https://microsoftedge.microsoft.com/addons/detail/zeroomegaproxy-switchy-/dmaldhchmoafliphkijbfhaomcgglmgd)
+Manage and switch between multiple proxies quickly & easily — with **zero** outgoing network requests, **zero** cloud syncing, and **zero** telemetry.
 
-[Firefox Addon](https://addons.mozilla.org/en-US/firefox/addon/zeroomega/)
+- [FAQ](https://github.com/jpbaking/air-switch/blob/main/FAQ.md)
+- [Privacy Policy](https://github.com/jpbaking/air-switch/blob/main/PRIVACY.md)
+- [Issues](https://github.com/jpbaking/air-switch/issues)
+- [Releases](https://github.com/jpbaking/air-switch/releases)
 
-Manage and switch between multiple proxies quickly & easily.
+## What Makes AirSwitch Different
+- **100% Offline / Zero Egress**: Removed GitHub Gist sync, WebDAV sync, `chrome.storage.sync`, online rule lists, remote PAC URLs, online backup restore, background `alarms`, and issue-reporting links.
+- **CIDR / IP Routing First-Class**: **IP / CIDR** (`10.0.0.0/8`, `192.168.1.1`, `fc00::/7`) is promoted to the default basic condition types in Auto Switch, with helpful input placeholders across all condition types.
+- **Clean Multi-Language Support**: Refined English (`en_US`) copy plus full South Korean (`ko_KR`) translation alongside existing locales.
+- **Graceful Legacy Restore**: Local `.bak` files from SwitchyOmega / ZeroOmega can be imported directly—legacy sync and online-URL fields are automatically stripped.
 
-[![Translation status](https://hosted.weblate.org/widgets/switchyomega/-/svg-badge.svg)](https://hosted.weblate.org/engage/switchyomega/?utm_source=widget)
+## Building the Project
 
-Chromium Extension
-------------------
-The project is available as a Chromium Extension.
+Node.js (v20+) and npm are required.
 
-You can try it on [Chrome Web Store](https://chromewebstore.google.com/detail/pfnededegaaopdmhkdmcofjmoldfiped),
-or grab a packaged extension file (CRX) for offline installation on the [Releases page](https://github.com/zero-peak/ZeroOmega/releases).
+```sh
+cd omega-build
+npm run deps     # Install dependencies in every module
+npm run dev      # Link local modules for development
+npm run build    # Build all modules -> omega-target-chromium-extension/build
+```
 
-Please [report issues on the issue tracker](https://github.com/zero-peak/ZeroOmega/issues).
+Load the generated `omega-target-chromium-extension/build` folder via **Load unpacked** in `chrome://extensions` or `brave://extensions` (with **Developer mode** enabled).
 
-Firefox Addon
-----------------------------
+## Project Structure
 
-There is also a WebExtension port, which allows installing in Firefox. Compatibility with Firefox has increased significantly recently.
+- `omega-pac` — Standalone PAC script generator and profile/condition model.
+- `omega-target` — Browser-independent options manager and profile application logic.
+- `omega-web` — Web-based options and popup UI.
+- `omega-target-chromium-extension` — Manifest V3 WebExtension target (Chromium & Firefox).
+- `omega-locales` — Gettext `.po` translation catalogs compiled to `_locales/*/messages.json`.
 
-You can try it on [Mozilla Add-ons](https://addons.mozilla.org/en-US/firefox/addon/zeroomega/),
-or grab a packaged extension file (XPI) for offline installation on the [Releases page](https://github.com/zero-peak/ZeroOmega/releases).
+## Credits & Attribution
 
-Please [report issues on the issue tracker](https://github.com/zero-peak/ZeroOmega/issues), browser-specific bugs are possible.
+AirSwitch is a fork of [ZeroOmega](https://github.com/zero-peak/ZeroOmega) (by the ZeroOmega Authors), which is a Manifest V3 fork of [SwitchyOmega](https://github.com/FelisCatus/SwitchyOmega) (by FelisCatus and [The SwitchyOmega Authors](https://github.com/jpbaking/air-switch/blob/main/AUTHORS)).
 
-Development status
-------------------
+## License
 
-## PAC generator
-This project contains a PAC generating module called `omega-pac`, which handles
-the profile model and compiles profiles into PAC scripts. This module is standalone
-and can be published to npm when the documentation is ready.
-
-## Options manager
-The folder `omega-target` contains browser-independent logic for managing the
-options and applying profiles. Every public method is well documented in the comments.
-Functions related to browser are not included, and shall be implemented in subclasses
-of the `omega-target` classes.
-
-`omega-web` is a web-based configuration interface for various options and profiles.
-The interface works great with `omega-target` as the back-end.
-
-`omega-web` alone is incomplete and requires a file named `omega_target_web.js`
-containing an angular module `omegaTarget`. The module contains browser-dependent
-code to communicate with `omega-target` back-end, and other code retrieving
-browser-related state and information.
-See the `omega-target-chromium-extension/omega_target_web.coffee` file for an
-example of such module.
-
-## Targets
-The `omega-target-*` folders should contain environment-dependent code such as
-browser API calls.
-
-Each target folder should contain an extended `OmegaTarget` object, which
-contains subclasses of the abstract base classes like `Options`. The classes
-contain implementations of the abstract methods, and can override other methods
-at will.
-
-A target can copy the files in `omega-web` into its build to provide a web-based
-configuration interface. If so, the target must provide the `omega_target_web.js`
-file as described in the Options manager section.
-
-Additionally, each target can contain other files and resources required for the
-target, such as background pages and extension manifests.
-
-For now, only one target has been implemented: The WebExtension target.
-This target allows the project to be used as a Chromium extension in most
-Chromium-based browsers and also as a Firefox Addon as mentioned above.
-
-## Translation
-
-Translation is hosted on Weblate. If you want to help improve the translated
-text or start translating for your language, please click the image below.
-
-[![Translation status](https://hosted.weblate.org/widgets/switchyomega/-/287x66-white.png)](https://hosted.weblate.org/engage/switchyomega/?utm_source=widget)
-
-## Building the project
-
-AirSwitch has migrated to use npm and grunt for building. Please note that
-node 20.x is required for this project.
-
-To build the project:
-
-    # Install node and npm first (make sure node --version >= 20), then:
-    
-    # In the project folder:
-    cd omega-build
-    npm run deps # This runs npm install in every module.
-    npm run dev # This runs npm link to aid local development.
-    # Note: the previous command may require sudo in some environments.
-    # The modules are now working. We can build now:
-    npm run build
-    # After building, a "build" folder will be generated in omega-target-chromium-extension folder.
-    # The folder above can be loaded as an unpacked extension in Chromium now.
-    npm run release
-    # After release, a "dist" folder will be generated in root folder.
-    cd ../dist # Return to generated folder.
-    # The chromium-release.zip and firefox-release.zip are the package files corresponding to chromium and firefox respectively.
-
-To enable `grunt watch`, run `grunt watch` once in the `omega-build` directory.
-This will effectively run `grunt watch` in every module in this project.
-
-License
--------
 ![GPLv3](https://www.gnu.org/graphics/gplv3-127x51.png)
 
-AirSwitch is licensed under [GNU General Public License](https://www.gnu.org/licenses/gpl.html) Version 3 or later.
+AirSwitch is licensed under the [GNU General Public License](https://www.gnu.org/licenses/gpl.html) Version 3 or later.
 
 AirSwitch is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -124,12 +57,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with AirSwitch.  If not, see <http://www.gnu.org/licenses/>.
+along with AirSwitch.  If not, see <https://www.gnu.org/licenses/>.
 
-Notice
-------
+## Notice
 
-
-AirSwitch currently does not have a dedicated project homepage. Please refer to this GitHub repository and wiki for official information.
-
-AirSwitch is not cooperating with any proxy providers, VPN providers or ISPs at the moment. No advertisement is displayed in AirSwitch project or software. Proxy providers are welcome to recommend AirSwitch as part of the solution in tutorials, but it must be made clear that AirSwitch is an independent project, is not affiliated with the provider and therefore cannot provide any support on network connections or proxy technology.
+AirSwitch is an independent open-source proxy configuration tool. It does not provide proxy servers, VPN services, or network connections, and contains no advertisements.

@@ -1141,7 +1141,7 @@ msgstr "AirSwitch 不提供代理伺服器、VPN等網路服務。"
 
 msgid "about_disclaimer_privacy"
 msgstr "AirSwitch 不會跟蹤您的上網記錄，不在頁面中插入廣告。請參見我們的"
-"<a href='https://github.com/FelisCatus/SwitchyOmega/wiki/Privacy#%E4%B8%AD%E6%96%87'>隱私政策</a>。"
+"<a href='https://github.com/jpbaking/air-switch/blob/main/PRIVACY.md#%E4%B8%AD%E6%96%87'>隱私政策</a>。"
 
 msgid "about_help"
 msgstr ""

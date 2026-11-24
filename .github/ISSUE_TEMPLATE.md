@@ -5,8 +5,8 @@ you troubleshoot any proxy servers, proxy server software, or your network.
 We do not know how to make AirSwitch work with Software X or Company Y's Network.
 Please contact your network administrator or read the server manual.
 
-Please read the FAQ first: https://github.com/FelisCatus/SwitchyOmega/wiki/FAQ
-And then search the issue list: https://github.com/suziwen/ZeroOmega/issues
+Please read the FAQ first: https://github.com/jpbaking/air-switch/blob/main/FAQ.md
+And then search the issue list: https://github.com/jpbaking/air-switch/issues
 Then, feel free to delete this whole section and move on.
 
 CLEAR ABOVE AFTER READ -->

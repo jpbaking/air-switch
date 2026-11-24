@@ -154,7 +154,7 @@ msgstr ""
 "Chromium-Full-URL-Limitation'>자세히 알아보기...</a>"
 
 msgid "condition_alert_fullUrlLimitationLink"
-msgstr "https://github.com/FelisCatus/SwitchyOmega/wiki/Chromium-Full-URL-Limitation"
+msgstr "https://github.com/jpbaking/air-switch/blob/main/FAQ.md#full-url-matching-on-https"
 
 msgid "condition_group_default"
 msgstr " "
@@ -1304,22 +1304,23 @@ msgstr "AirSwitch는 프록시, VPN 또는 기타 네트워크 서비스를 제�
 msgid "about_disclaimer_privacy"
 msgstr ""
 "AirSwitch는 사용자를 추적하거나 웹페이지에 광고를 삽입하지 않습니다. 자세한 내용은 "
-"<a href='https://github.com/FelisCatus/SwitchyOmega/wiki/Privacy#english'>개인정보 처리방침</a>을 참고하세요."
+"<a href='https://github.com/jpbaking/air-switch/blob/main/PRIVACY.md'>개인정보 처리방침</a>을 참고하세요."
 
 msgid "about_help"
 msgstr ""
 "다른 질문이 있거나 AirSwitch 사용에 도움이 필요하신가요? "
-"<a href='https://github.com/FelisCatus/SwitchyOmega/wiki/FAQ'>자주 묻는 질문(FAQ)</a>을 확인해 보세요."
+"<a href='https://github.com/jpbaking/air-switch/blob/main/FAQ.md'>자주 묻는 질문(FAQ)</a>을 확인해 보세요."
 
 msgid "about_copyright"
 msgstr ""
 "Copyright 2012-2017 <a href='https://github.com/FelisCatus/SwitchyOmega/blob/master/AUTHORS'>The SwitchyOmega Authors</a>. All rights reserved.<br>"
-"Copyright 2024-2025 <a href='https://github.com/zero-peak/ZeroOmega/graphs/contributors'>The ZeroOmega Authors</a>."
+"Copyright 2024-2025 <a href='https://github.com/zero-peak/ZeroOmega/graphs/contributors'>The ZeroOmega Authors</a>.<br>"
+"Copyright 2026 <a href='https://github.com/jpbaking/air-switch'>AirSwitch (jpbaking)</a>."
 
 msgid "about_credits"
 msgstr ""
-"AirSwitch는 <a href='https://github.com/zero-peak/ZeroOmega'>ZeroOmega</a> 오픈 소스 프로젝트와 기타 "
-"<a href='https://github.com/FelisCatus/SwitchyOmega/blob/master/AUTHORS'>오픈 소스 소프트웨어</a> 덕분에 만들어졌습니다."
+"<a href='https://github.com/jpbaking/air-switch'>AirSwitch</a>는 <a href='https://github.com/zero-peak/ZeroOmega'>ZeroOmega</a> 및 <a href='https://github.com/FelisCatus/SwitchyOmega'>SwitchyOmega</a>에서 포크되었으며, 기타 "
+"<a href='https://github.com/jpbaking/air-switch/blob/main/AUTHORS'>오픈 소스 소프트웨어</a> 덕분에 만들어졌습니다."
 
 msgid "about_license"
 msgstr ""

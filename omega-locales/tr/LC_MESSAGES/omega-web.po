@@ -130,7 +130,7 @@ msgid "condition_alert_fullUrlLimitation"
 msgstr ""
 
 msgid "condition_alert_fullUrlLimitationLink"
-msgstr "https://github.com/FelisCatus/SwitchyOmega/wiki/Chromium-Full-URL-Limitation"
+msgstr "https://github.com/jpbaking/air-switch/blob/main/FAQ.md#full-url-matching-on-https"
 
 msgid "condition_group_default"
 msgstr " "

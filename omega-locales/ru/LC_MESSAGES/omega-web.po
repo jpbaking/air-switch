@@ -168,7 +168,7 @@ msgstr ""
 "wiki/Chromium-Full-URL-Limitation'>Узнать больше…</a>"
 
 msgid "condition_alert_fullUrlLimitationLink"
-msgstr "https://github.com/FelisCatus/SwitchyOmega/wiki/Chromium-Full-URL-Limitation"
+msgstr "https://github.com/jpbaking/air-switch/blob/main/FAQ.md#full-url-matching-on-https"
 
 msgid "condition_group_default"
 msgstr " "
@@ -1400,7 +1400,7 @@ msgstr ""
 msgid "about_help"
 msgstr ""
 "Остались вопросы? Нужна помощь с использованием AirSwitch? Смотрите наш "
-"<a href='https://github.com/FelisCatus/SwitchyOmega/wiki/FAQ'>ЧаВО</a>."
+"<a href='https://github.com/jpbaking/air-switch/blob/main/FAQ.md'>ЧаВО</a>."
 
 msgid "about_copyright"
 msgstr "Авторское право © 2012-2017 <a href='https://github.com/FelisCatus/SwitchyOmega/blob/master/AUTHORS'>Авторы SwitchyOmega</a>. Все права защищены.<br>"

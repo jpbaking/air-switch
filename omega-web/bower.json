@@ -11,7 +11,7 @@
     "extension"
   ],
   "license": "GPL",
-  "homepage": "https://github.com/FelisCatus/SwitchyOmega",
+  "homepage": "https://github.com/jpbaking/air-switch",
   "private": true,
   "ignore": [
     "**/.*",

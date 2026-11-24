@@ -160,7 +160,7 @@ msgstr ""
 "Limitation'>اصلاعات بیشتر...</a>"
 
 msgid "condition_alert_fullUrlLimitationLink"
-msgstr "https://github.com/FelisCatus/SwitchyOmega/wiki/Chromium-Full-URL-Limitation"
+msgstr "https://github.com/jpbaking/air-switch/blob/main/FAQ.md#full-url-matching-on-https"
 
 msgid "condition_group_default"
 msgstr " "
@@ -1281,7 +1281,7 @@ msgstr "AirSwitch پروکسی، وی پی ان یا دیگر خدمات شبک�
 msgid "about_disclaimer_privacy"
 msgstr ""
 "AirSwitch شما را ردیابی نمی کند یا تبلیغاتی را در صفحات وب درج نمی کند. "
-"لطفاً <a href='https://github.com/FelisCatus/SwitchyOmega/wiki/Privacy#"
+"لطفاً <a href='https://github.com/jpbaking/air-switch/blob/main/PRIVACY.md#"
 "english'>خط مشی رازداری</a> ما را ببینید."
 
 msgid "about_help"

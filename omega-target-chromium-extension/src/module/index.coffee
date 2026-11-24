@@ -1,6 +1,5 @@
 module.exports =
   Storage: require('./storage')
-  SyncStorage: require('./sync_storage')
   Options: require('./options')
   ChromeTabs: require('./tabs')
   SwitchySharp: require('./switchysharp')

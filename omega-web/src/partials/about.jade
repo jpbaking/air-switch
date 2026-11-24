@@ -14,11 +14,6 @@ section
       p {{'about_app_description' | tr}}
 section
   p
-    button.btn.btn-info(ng-click='reportIssue()' ladda='issueReporting')
-      span.glyphicon.glyphicon-comment
-      = ' '
-      | {{'popup_reportIssues' | tr}}
-    = ' '
     button.btn.btn-default(ng-click='downloadLog()' ladda='logDownloading' data-spinner-color="currentColor")
       span.glyphicon.glyphicon-download
       = ' '

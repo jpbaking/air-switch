@@ -661,7 +661,7 @@
     "dark": true
   },
   "china-danqing-light": {
-    "name": "中国风丹青(亮)",
+    "name": "Chinese Danqing (Light)",
     "colors": {
       "base00": "#fafafa",
       "base01": "#f0f0f1",
@@ -684,7 +684,7 @@
     "dark": false
   },
   "china-danqing-dark": {
-    "name": "中国风丹青(暗)",
+    "name": "Chinese Danqing (Dark)",
     "colors": {
       "base00": "#2d302f",
       "base01": "#434846",
@@ -707,7 +707,7 @@
     "dark": true
   },
   "china-red-screen": {
-    "name": "中国过年红",
+    "name": "Chinese New Year Red",
     "colors": {
       "base00": " #550000",
       "base01": " #6e0a0a",
@@ -729,7 +729,7 @@
     "dark": false
   },
   "china-traditional-light": {
-    "name": "中国传统色(亮)",
+    "name": "Chinese Traditional (Light)",
     "colors": {
       "base00": "#F8F4ED",
       "base01": "#E7E3DB",
@@ -753,7 +753,7 @@
     "dark": false
   },
   "china-traditional-night": {
-    "name": "中国传统色(暗)",
+    "name": "Chinese Traditional (Dark)",
     "colors": {
       "base00": "#2B312C",
       "base01": "#1A2413",
@@ -1524,7 +1524,7 @@
     "dark": false
   },
   "green-screen": {
-    "name": "黑客帝国",
+    "name": "The Matrix",
     "colors": {
       "base00": "#001100",
       "base01": "#003300",
@@ -2317,7 +2317,7 @@
     "dark": true
   },
   "oceanicnext": {
-    "name": "海洋之心",
+    "name": "Oceanic Next",
     "colors": {
       "base00": "#1B2B34",
       "base01": "#343D46",
@@ -2801,7 +2801,7 @@
     "dark": false
   },
   "sakura": {
-    "name": "樱花之恋",
+    "name": "Sakura",
     "colors": {
       "base00": "#feedf3",
       "base01": "#f8e2e7",

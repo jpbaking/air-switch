@@ -60,7 +60,7 @@ class FirefoxProxyImpl extends ProxyImpl
     return @setProxyAuth(profile, options)
   onRequest: (requestDetails) ->
     #return undefined if browser.extension.isAllowedIncognitoAccess()
-    # TODO 将来可以在这里实现按标签进行代理控制功能
+    # TODO: Implement per-tab proxy control here in the future
     #return undefined
     # The browser only recognizes native promises return values, not Bluebird.
     return NativePromise.resolve(@_optionsReady.then(=>

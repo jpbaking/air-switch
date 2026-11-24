@@ -137,12 +137,6 @@ angular.module('omegaTarget', []).factory 'omegaTarget', ($q) ->
       callBackground('patch', patch).then omegaTarget.refresh
     resetOptions: (opt) ->
       callBackground('reset', opt).then omegaTarget.refresh
-    updateProfile: (name, opt_bypass_cache) ->
-      callBackground('updateProfile', name, opt_bypass_cache).then((results) ->
-        for own key, value of results
-          results[key] = decodeError(value)
-        results
-      ).then omegaTarget.refresh
     getMessage: chrome.i18n.getMessage.bind(chrome.i18n)
     openOptions: (hash) ->
       d = $q['defer']()
@@ -205,10 +199,6 @@ angular.module('omegaTarget', []).factory 'omegaTarget', ($q) ->
       chrome.tabs.create url: 'chrome://extensions/?id=' + chrome.runtime.id
     openShortcutConfig: ->
       chrome.tabs.create url: 'chrome://extensions/configureCommands'
-    setOptionsSync: (enabled, args) ->
-      callBackground('setOptionsSync', enabled, args)
-    resetOptionsSync: (args) -> callBackground('resetOptionsSync', args)
-    checkOptionsSyncChange: -> callBackground('checkOptionsSyncChange')
     setRequestInfoCallback: (callback) ->
       requestInfoCallback = callback
 

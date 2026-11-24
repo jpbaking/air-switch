@@ -7,12 +7,12 @@ angular.module('omega').controller 'SwitchProfileCtrl', ($scope, $rootScope,
   exportRuleList = ->
     text = OmegaPac.RuleList.Switchy.compose(
       rules: $scope.profile.rules
-      defaultProfileName: $scope.attachedOptions.defaultProfileName
+      defaultProfileName: $scope.profile.defaultProfileName
     )
 
     eol = '\r\n'
     info = '\n'
-    info += '; Require: ZeroOmega >= 2.3.2' + eol
+    info += '; Require: AirSwitch >= 2.3.2' + eol
     info += "; Date: #{new Date().toLocaleDateString()}" + eol
     info += "; Usage: #{trFilter('ruleList_usageUrl')}" + eol
 
@@ -27,7 +27,7 @@ angular.module('omega').controller 'SwitchProfileCtrl', ($scope, $rootScope,
     regexpRules = ''
     for rule in $scope.profile.rules
       i = ''
-      if rule.profileName == $scope.attachedOptions.defaultProfileName
+      if rule.profileName == $scope.profile.defaultProfileName
         i = '!'
       switch rule.condition.conditionType
         when 'HostWildcardCondition'
@@ -63,6 +63,7 @@ angular.module('omega').controller 'SwitchProfileCtrl', ($scope, $rootScope,
       group: 'default'
       types: [
         'HostWildcardCondition'
+        'IpCondition'
         'UrlWildcardCondition'
         'UrlRegexCondition'
         'FalseCondition'
@@ -120,6 +121,13 @@ angular.module('omega').controller 'SwitchProfileCtrl', ($scope, $rootScope,
   $scope.isUrlConditionType =
     'UrlWildcardCondition': true
     'UrlRegexCondition': true
+
+  $scope.conditionPlaceholders =
+    'HostWildcardCondition': 'e.g. *.example.com'
+    'HostRegexCondition': 'e.g. (^|\\.)example\\.com$'
+    'UrlWildcardCondition': 'e.g. http://*.example.com/api/*'
+    'UrlRegexCondition': 'e.g. ^http://example\\.com/api/'
+    'KeywordCondition': 'e.g. example'
 
   updateHasConditionTypes = ->
     return unless $scope.profile?.rules?
@@ -187,7 +195,7 @@ angular.module('omega').controller 'SwitchProfileCtrl', ($scope, $rootScope,
         angular.copy(templ)
       else
         condition: {conditionType: 'HostWildcardCondition', pattern: ''}
-        profileName: $scope.attachedOptions.defaultProfileName
+        profileName: $scope.profile.defaultProfileName
     if rule.condition.pattern
       rule.condition.pattern = ''
     $scope.profile.rules.push rule
@@ -257,7 +265,7 @@ angular.module('omega').controller 'SwitchProfileCtrl', ($scope, $rootScope,
   $scope.resetRules = ->
     scope = $scope.$new('isolate')
     scope.ruleProfile =
-      $scope.profileByName($scope.attachedOptions.defaultProfileName)
+      $scope.profileByName($scope.profile.defaultProfileName)
     scope.dispNameFilter = $scope.dispNameFilter
     scope.options = $scope.options
     $modal.open(
@@ -265,7 +273,7 @@ angular.module('omega').controller 'SwitchProfileCtrl', ($scope, $rootScope,
       scope: scope
     ).result.then ->
       for rule in $scope.profile.rules
-        rule.profileName = $scope.attachedOptions.defaultProfileName
+        rule.profileName = $scope.profile.defaultProfileName
 
   $scope.sortableOptions =
     handle: '.sort-bar'
@@ -274,91 +282,6 @@ angular.module('omega').controller 'SwitchProfileCtrl', ($scope, $rootScope,
     forceHelperSize: true
     forcePlaceholderSize: true
     containment: 'parent'
-
-  # == Attached ==
-  attachedReadyDefer = $q.defer()
-  attachedReady = attachedReadyDefer.promise
-  $scope.$watch 'profile.name', (name) ->
-    $scope.attachedName = getAttachedName(name)
-    $scope.attachedKey = OmegaPac.Profiles.nameAsKey($scope.attachedName)
-
-  $scope.$watch 'options[attachedKey]', (attached) ->
-    $scope.attached = attached
-
-  $scope.watchAndUpdateRevision 'options[attachedKey]'
-
-  oldSourceUrl = null
-  oldLastUpdate = null
-  oldRuleList = null
-  onAttachedChange = (attached, oldAttached) ->
-    return unless attached and oldAttached
-    if attached.sourceUrl != oldAttached.sourceUrl
-      if attached.lastUpdate
-        oldSourceUrl = oldAttached.sourceUrl
-        oldLastUpdate = attached.lastUpdate
-        oldRuleList = oldAttached.ruleList
-        attached.lastUpdate = null
-      else if oldSourceUrl and attached.sourceUrl == oldSourceUrl
-        attached.lastUpdate = oldLastUpdate
-        attached.ruleList = oldRuleList
-  $scope.$watch 'options[attachedKey]', onAttachedChange, true
-
-  $scope.attachedOptions = {enabled: false}
-  $scope.$watch 'profile.defaultProfileName', (name) ->
-    $scope.attachedOptions.enabled = (name == $scope.attachedName)
-    if not $scope.attached or not $scope.attachedOptions.enabled
-      $scope.attachedOptions.defaultProfileName = name
-
-  $scope.$watch 'attachedOptions.enabled', (enabled, oldValue) ->
-    return if enabled == oldValue
-    if enabled
-      if $scope.profile.defaultProfileName != $scope.attachedName
-        $scope.profile.defaultProfileName = $scope.attachedName
-    else
-      if $scope.profile.defaultProfileName == $scope.attachedName
-        if $scope.attached
-          $scope.profile.defaultProfileName = $scope.attached.defaultProfileName
-          $scope.attachedOptions.defaultProfileName =
-            $scope.attached.defaultProfileName
-        else
-          $scope.profile.defaultProfileName = 'direct'
-          $scope.attachedOptions.defaultProfileName = 'direct'
-
-  $scope.$watch 'attached.defaultProfileName', (name) ->
-    if name and $scope.attachedOptions.enabled
-      $scope.attachedOptions.defaultProfileName = name
-
-  $scope.$watch 'attachedOptions.defaultProfileName', (name) ->
-    attachedReadyDefer.resolve()
-    if $scope.attached and $scope.attachedOptions.enabled
-      $scope.attached.defaultProfileName = name
-    else
-      $scope.profile.defaultProfileName = name
-
-  $scope.attachNew = ->
-    $scope.attached = OmegaPac.Profiles.create(
-      name: $scope.attachedName
-      defaultProfileName: $scope.profile.defaultProfileName
-      profileType: 'RuleListProfile'
-      color: $scope.profile.color
-    )
-    OmegaPac.Profiles.updateRevision($scope.attached)
-    $scope.options[$scope.attachedKey] = $scope.attached
-    $scope.attachedOptions.enabled = true
-    $scope.profile.defaultProfileName = $scope.attachedName
-
-  $scope.removeAttached = ->
-    return unless $scope.attached
-    scope = $scope.$new('isolate')
-    scope.attached = $scope.attached
-    scope.dispNameFilter = $scope.dispNameFilter
-    scope.options = $scope.options
-    $modal.open(
-      templateUrl: 'partials/delete_attached.html'
-      scope: scope
-    ).result.then ->
-      $scope.profile.defaultProfileName = $scope.attached.defaultProfileName
-      delete $scope.options[$scope.attachedKey]
 
   # == Edit source ==
   stateEditorKey = 'web._profileEditor.' + $scope.profile.name
@@ -399,7 +322,7 @@ angular.module('omega').controller 'SwitchProfileCtrl', ($scope, $rootScope,
       return false
     else
       $scope.source.error = undefined
-    $scope.attachedOptions.defaultProfileName = rules.pop().profileName
+    $scope.profile.defaultProfileName = rules.pop().profileName
     # Try to merge with existing rules if possible.
     diff = jsondiffpatch.create(
       objectHash: (obj) -> JSON.stringify(obj)
@@ -409,12 +332,12 @@ angular.module('omega').controller 'SwitchProfileCtrl', ($scope, $rootScope,
     patch = diff.diff(oldRules, rules)
     jsondiffpatch.patch($scope.profile.rules, patch)
     return true
-  $scope.toggleSource = -> $q.all([attachedReady, rulesReady]).then ->
+  $scope.toggleSource = -> rulesReady.then ->
     $scope.editSource = not $scope.editSource
     if $scope.editSource
       args =
         rules: $scope.profile.rules
-        defaultProfileName: $scope.attachedOptions.defaultProfileName
+        defaultProfileName: $scope.profile.defaultProfileName
       code = OmegaPac.RuleList.Switchy.compose(args, withResult: true)
       $scope.source = {code: code}
     else
@@ -429,17 +352,6 @@ angular.module('omega').controller 'SwitchProfileCtrl', ($scope, $rootScope,
       event.preventDefault() unless sourceValid
 
   $scope.$on 'omegaApplyOptions', (event) ->
-    if $scope.attached?.ruleList and not $scope.attached.sourceUrl
-      $scope.attachedRuleListError = undefined
-      {error} = parseOmegaRules($scope.attached.ruleList.trim(), detect: true)
-      if error
-        if error.reason != 'resultNotEnabled' and error.reason != 'notSwitchy'
-          $scope.attachedRuleListError = error
-          event.preventDefault()
-          angular.element('#attached-rulelist')[0].focus()
-      else
-        $scope.attached.format = 'Switchy'
-
     if $scope.editSource and $scope.source.touched
       event.preventDefault()
       if parseSource()
@@ -458,11 +370,3 @@ angular.module('omega').controller 'SwitchProfileCtrl', ($scope, $rootScope,
         omegaTarget.state('web.switchGuide', 'shown')
         return if $scope.profile.rules.length == 0
         $script 'js/switch_profile_guide.js'
-
-  # == Custom Headers ==
-  $scope.addHeader = ->
-    $scope.attached.headers ?= []
-    $scope.attached.headers.push({name: '', value: ''})
-
-  $scope.removeHeader = (index) ->
-    $scope.attached.headers.splice(index, 1)

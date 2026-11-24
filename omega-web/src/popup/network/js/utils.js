@@ -14,7 +14,7 @@ export const waitTimeout = function(maxTimeout=3000){
   return new Promise((resolve)=>{
     setTimeout(()=>{
       resolve()
-    }, maxTimeout) // 最多 3秒
+    }, maxTimeout) // 3 seconds max
   })
 }
 
@@ -24,7 +24,7 @@ export const safeTexts = (str)=> {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;") //&#39; 或 &apos;
+    .replace(/'/g, "&#39;") // &#39; or &apos;
     .replace(/\//g, "&#47;");
 }
 

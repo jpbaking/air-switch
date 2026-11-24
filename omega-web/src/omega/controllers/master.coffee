@@ -19,9 +19,6 @@ angular.module('omega').controller 'MasterCtrl', ($scope, $rootScope, $window,
     $rootScope.options = angular.copy(newOptions)
     $rootScope.optionsOld = angular.copy(newOptions)
 
-    omegaTarget.state('syncOptions').then (syncOptions) ->
-      $scope.syncOptions = syncOptions
-
     $timeout ->
       $rootScope.optionsDirty = false
       showFirstRun()
@@ -232,56 +229,6 @@ angular.module('omega').controller 'MasterCtrl', ($scope, $rootScope, $window,
               message: err
             )
 
-  $scope.updatingProfile = {}
-
-  $rootScope.updateProfile = (name) ->
-    $rootScope.applyOptionsConfirm().then(->
-      if name?
-        $scope.updatingProfile[name] = true
-      else
-        OmegaPac.Profiles.each $scope.options, (key, profile) ->
-          if not profile.builtin
-            $scope.updatingProfile[profile.name] = true
-        
-      omegaTarget.updateProfile(name, 'bypass_cache').then((results) ->
-        success = 0
-        error = 0
-        for own profileName, result of results
-          if result instanceof Error
-            error++
-          else
-            success++
-        if error == 0
-          $rootScope.showAlert(
-            type: 'success'
-            i18n: 'options_profileDownloadSuccess'
-          )
-        else
-          if error == 1
-            singleErr = results[OmegaPac.Profiles.nameAsKey(name)]
-            if singleErr
-              return $q.reject(singleErr)
-          return $q.reject(results)
-      ).catch((err) ->
-        message = tr('options_profileDownloadError_' + err.name,
-          [err.statusCode ? err.original?.statusCode ? ''])
-        if message
-          $rootScope.showAlert(
-            type: 'error'
-            message: message
-          )
-        else
-          $rootScope.showAlert(
-            type: 'error'
-            i18n: 'options_profileDownloadError'
-          )
-      ).finally ->
-        if name?
-          $scope.updatingProfile[name] = false
-        else
-          $scope.updatingProfile = {}
-    )
-
   onOptionChange = (options, oldOptions) ->
     return if options == oldOptions or not oldOptions?
     $rootScope.optionsDirty = true
@@ -321,10 +268,6 @@ angular.module('omega').controller 'MasterCtrl', ($scope, $rootScope, $window,
     if type == 'error'
       type = 'danger'
     return 'alert-' + type
-
-  $scope.downloadIntervals = [15, 60, 180, 360, 720, 1440, -1]
-  $scope.downloadIntervalI18n = (interval) ->
-    "options_downloadInterval_" + (if interval < 0 then "never" else interval)
 
   themeItems = []
   for key, val of themes

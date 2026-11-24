@@ -5,9 +5,6 @@ Promise.longStackTraces()
 OmegaTargetCurrent.Log = Object.create(OmegaTargetCurrent.Log)
 Log = OmegaTargetCurrent.Log
 
-
-BUILTINSYNCKEY = 'zeroOmegaSync'
-
 globalThis.isBrowserRestart = false
 startupCheck = ->
   setTimeout(->
@@ -41,7 +38,6 @@ upgradeMigrateFn = (details) ->
     if compareVersions.compare currentVersion, previousVersion, '>'
       if compareVersions.compare '3.3.0', currentVersion, '>'
         options.ready.then( ->
-          chrome.storage.sync.clear()
           chrome.storage.local.clear()
           idbKeyval.clear()
         )
@@ -233,17 +229,9 @@ zeroBackground = (zeroStorage, opts) ->
   storage = new OmegaTargetCurrent.Storage('local')
   state = new OmegaTargetCurrent.BrowserStorage(zeroStorage, 'omega.local.')
 
-  if chrome?.storage?.sync or browser?.storage?.sync
-    syncStorage = new OmegaTargetCurrent.SyncStorage('sync', state)
-    builtInSyncStorage = new OmegaTargetCurrent.Storage('sync')
-    sync = new OmegaTargetCurrent.OptionsSync(
-      syncStorage, builtInSyncStorage, state
-    )
-    sync.transformValue = OmegaTargetCurrent.Options.transformValueForSync
-
   proxyImpl = OmegaTargetCurrent.proxy.getProxyImpl(Log)
   state.set({proxyImplFeatures: proxyImpl.features})
-  options = new OmegaTargetCurrent.Options(storage, state, Log, sync,
+  options = new OmegaTargetCurrent.Options(storage, state, Log, null,
     proxyImpl)
 
   options._actionForUrl = actionForUrl
@@ -256,55 +244,6 @@ zeroBackground = (zeroStorage, opts) ->
   if chrome.runtime.id != OmegaTargetCurrent.SwitchySharp.extId and false
     options.switchySharp = new OmegaTargetCurrent.SwitchySharp()
     options.switchySharp.monitor()
-  if sync and options and builtInSyncStorage
-    builtInSyncStorage.watch [
-      BUILTINSYNCKEY
-    ], (changes, opts = {}) ->
-      builtInSyncConfig = changes[BUILTINSYNCKEY]
-      if builtInSyncConfig
-        {
-          gistId, gistToken, lastGistCommit, syncUsername, syncBackendType
-        } = builtInSyncConfig
-        stateUpdate = {gistId, gistToken}
-        stateUpdate.syncUsername = syncUsername if syncUsername?
-        stateUpdate.syncBackendType = syncBackendType if syncBackendType?
-        state.set(stateUpdate)
-        if sync.enabled
-          console.log('check gist change', lastGistCommit)
-          sync.init({
-            gistId, gistToken, username: syncUsername, syncBackendType
-          })
-          state.get({
-            'lastGistCommit': ''
-          }).then((syncConfig) ->
-            if syncConfig.lastGistCommit isnt lastGistCommit
-              console.log(
-                'no match last gist commit, will check change',
-                syncConfig.lastGistCommit
-              )
-              sync.checkChange()
-          )
-        else
-          # try to enable sync
-          state.get({
-            'syncOptions': ''
-            'lastGistCommit': ''
-          }).then((syncConfig) ->
-            return if syncConfig.lastGistCommit is lastGistCommit
-            if syncConfig.syncOptions in ['pristine', 'conflict']
-              state.set({
-                syncOptions: 'conflict'
-              }).then( ->
-                options.setOptionsSync(true, {
-                  gistId,
-                  gistToken,
-                  username: syncUsername,
-                  syncBackendType,
-                  useBuiltInSync: true,
-                  force: true
-                })
-              )
-          )
   tabs = new OmegaTargetCurrent.ChromeTabs(actionForUrl)
   tabs.watch()
 
@@ -450,11 +389,7 @@ zeroBackground = (zeroStorage, opts) ->
   resetAllOptions = ->
     options.ready.then ->
       options._watchStop?()
-      options._syncWatchStop?()
-      Promise.all([
-        chrome.storage.sync.clear(),
-        chrome.storage.local.clear()
-      ])
+      chrome.storage.local.clear()
   chrome.runtime.onMessage.addListener (request, sender, respond) ->
     return unless request and request.method
     options.ready.then ->
@@ -484,9 +419,6 @@ zeroBackground = (zeroStorage, opts) ->
       return if request.noReply
 
       promise.then (result) ->
-        if request.method == 'updateProfile'
-          for own key, value of result
-            result[key] = encodeError(value)
         respond(result: result)
 
       promise.catch (error) ->

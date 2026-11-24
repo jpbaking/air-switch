@@ -9,6 +9,8 @@ module.exports =
         '../omega-locales/cs/LC_MESSAGES/omega-web.po'
       'build/_locales/fa/messages.json':
         '../omega-locales/fa/LC_MESSAGES/omega-web.po'
+      'build/_locales/ko/messages.json':
+        '../omega-locales/ko_KR/LC_MESSAGES/omega-web.po'
       'build/_locales/ru/messages.json':
         '../omega-locales/ru/LC_MESSAGES/omega-web.po'
       'build/_locales/zh_CN/messages.json':

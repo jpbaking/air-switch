@@ -92,11 +92,6 @@ $injector) ->
     blob = new Blob [localStorage['log']], {type: "text/plain;charset=utf-8"}
     downloadFile(blob, "OmegaLog_#{Date.now()}.txt")
 
-  omegaDebug.reportIssue ?= ->
-    $window.open(
-      'https://github.com/FelisCatus/SwitchyOmega/issues/new?title=&body=')
-    return
-
   omegaDebug.resetOptions ?= ->
     $rootScope.resetOptions()
 

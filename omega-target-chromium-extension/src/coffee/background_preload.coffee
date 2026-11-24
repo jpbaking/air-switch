@@ -26,11 +26,6 @@ initContextMenu = ->
     contexts: ["action"]
   })
   chrome.contextMenus.create({
-    id: 'reportIssue'
-    title: chrome.i18n.getMessage('popup_reportIssues')
-    contexts: ["action"]
-  })
-  chrome.contextMenus.create({
     id: 'reload'
     title: chrome.i18n.getMessage('popup_Reload')
     contexts: ["action"]
@@ -61,6 +56,4 @@ chrome.contextMenus?.onClicked.addListener((info, tab) ->
       browser.runtime.openOptionsPage()
     when 'reload'
       chrome.runtime.reload()
-    when 'reportIssue'
-      OmegaDebug.reportIssue()
 )

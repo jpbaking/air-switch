@@ -11,11 +11,11 @@ generateSHA256 = (text) ->
     encoder = new TextEncoder()
     data = encoder.encode(text)
     crypto.subtle.digest("SHA-256", data).then((hashBuffer) ->
-      # 将 ArrayBuffer 转换为十六进制字符串
+      # Convert ArrayBuffer to a hexadecimal string
       hashArray = Array.from(new Uint8Array(hashBuffer))
       hashHex = hashArray.map((byte) ->
         byte.toString(16).padStart(2, '0')).join('')
-      # 输出 SHA-256 哈希值
+      # Output the SHA-256 hash
       resolve(hashHex)
     ).catch((e) ->
       console.log('eee', e)
@@ -24,7 +24,6 @@ generateSHA256 = (text) ->
   )
 
 PROFILETEMPPACKEY = '__tempZeroRuleListPac'
-transformValueKeys = ['lastUpdate', 'ruleList', 'pacScript', 'sha256']
 
 generateProfileTempPac = (profile) ->
   tempProfile = OmegaPac.Profiles.create(PROFILETEMPPACKEY, profile.profileType)
@@ -80,24 +79,6 @@ class Options
     class NoOptionsError extends Error
       constructor: -> super
 
-  ###*
-  # Transform options values (especially profiles) for syncing.
-  # @param {{}} value The value to transform
-  # @param {{}} key The key of the options
-  # @returns {{}} The transformed value
-  ###
-  @transformValueForSync: (value, key) ->
-    if key is '-customCss'
-      return undefined
-    if key[0] == '+'
-      if OmegaPac.Profiles.updateUrl(value)
-        profile = {}
-        for k, v of value
-          continue if transformValueKeys.indexOf(k) >= 0
-          profile[k] = v
-        value = profile
-    return value
-
   constructor: (@_storage, @_state, @log, @sync, @proxyImpl) ->
     @_options = {}
     @_tempProfileRules = {}
@@ -108,7 +89,7 @@ class Options
 
 
   ###
-  # 拆开比较合理些
+  # Splitting this up makes more sense
   ###
   initWithOptions: (options, startupCheck) ->
     if not options?
@@ -120,57 +101,17 @@ class Options
         @init(startupCheck)
 
   ###*
-  # Attempt to load options from local and remote storage.
+  # Attempt to load options from local storage.
   # @param {?{}} args Extra arguments
   # @param {number=3} args.retry Number of retries before giving up.
   # @returns {Promise<OmegaOptions>} The loaded options
   ###
   loadOptions: ({retry} = {}) ->
     retry ?= 3
-    @_syncWatchStop?()
-    @_syncWatchStop = null
     @_watchStop?()
     @_watchStop = null
 
-    loadRaw = if options? then Promise.resolve(options) else
-      if not @sync?
-        @_state.set({'syncOptions': 'unsupported'})
-        @_storage.get(null)
-      else
-        @_state.get({
-          'syncOptions': ''
-          'gistId': ''
-          'gistToken': ''
-          'syncUsername': ''
-          'syncBackendType': ''
-        }).then((
-          {syncOptions, gistId, gistToken, syncUsername, syncBackendType}
-        ) =>
-          unless gistId
-            unless syncOptions is 'disabled'
-              syncOptions = 'pristine'
-            @_state.set({'syncOptions': syncOptions})
-          @sync.enabled = syncOptions is 'sync'
-          unless @sync.enabled
-            @_storage.get(null)
-          else
-            @sync.init({
-              gistId, gistToken, username: syncUsername, syncBackendType
-            }).catch((e) ->
-              console.log('sync init fail::', e)
-            )
-            @_syncWatchStop =
-              @sync.watchAndPull(@_storage, @updateProfile.bind(this))
-            @sync.copyTo(@_storage).catch(Storage.StorageUnavailableError, =>
-              console.error('Warning: Sync storage is not available in this ' +
-                'browser! Disabling options sync.')
-              @_syncWatchStop?()
-              @_syncWatchStop = null
-              @sync = null
-              @_state.set({'syncOptions': 'unsupported'})
-            ).then =>
-              @_storage.get(null)
-        )
+    loadRaw = if options? then Promise.resolve(options) else @_storage.get(null)
 
     @optionsLoaded = loadRaw.then((options) =>
       @upgrade(options)
@@ -179,12 +120,6 @@ class Options
     ).tap((options) =>
       @_options = options
       @_watchStop = @_watch()
-      # Try to set syncOptions to some value if not initialized.
-      @_state.get({'syncOptions': ''}).then ({syncOptions}) =>
-        return if syncOptions
-        @_state.set({'syncOptions': 'conflict'})
-        @sync.storage.get('schemaVersion').then ({schemaVersion}) =>
-          @_state.set({'syncOptions': 'pristine'}) if not schemaVersion
     ).catch (e) =>
       return Promise.reject(e) unless retry > 0
 
@@ -194,67 +129,16 @@ class Options
             'firstRun': 'new'
             'web.switchGuide': 'showOnFirstUse'
           }).then (items) => @_state.set(items)
-          return null unless @sync?
-          @sync.getBuiltInSyncConfig().then((builtInSyncConfig) =>
-            @_state.get({
-              'syncOptions': ''
-              'lastGistCommit': ''
-            }).then((syncConfig) =>
-              syncOptions = syncConfig.syncOptions
-              if !!builtInSyncConfig
-                @_state.set({
-                  'firstRun': '',
-                  'web.switchGuide': ''
-                })
-                {
-                  gistId, gistToken, lastGistCommit, syncUsername
-                  syncBackendType
-                } = builtInSyncConfig
-                if syncConfig.lastGistCommit isnt lastGistCommit
-                  if syncOptions in ['pristine', 'conflict']
-                    @_state.set({
-                      syncOptions: 'conflict'
-                    }).then( =>
-                      @setOptionsSync(true, {
-                        gistId,
-                        gistToken,
-                        username: syncUsername,
-                        syncBackendType,
-                        useBuiltInSync: true,
-                        force: true
-                      })
-                    )
-                    return
-              return if syncOptions == 'conflict'
-              # Try to fetch options from sync storage.
-              return @sync.storage.get(null).then((options) =>
-                if not options['schemaVersion']
-                  @_state.set({'syncOptions': 'pristine'})
-                  return null
-                else
-                  @_state.set({'syncOptions': 'sync'})
-                  @sync.enabled = true
-                  @log.log('Options#loadOptions::fromSync', options)
-                  options
-              ).catch(-> null)
-            )
-          )
+          return null
         else
           @log.error(e.stack)
-          # Some serious error happened when loading options. Disable syncing
-          # and use fallback options.
-          @_state.remove(['syncOptions'])
           return null
 
       getFallbackOptions.then (options) =>
         options ?= @parseOptions(@getDefaultOptions())
-        if @sync?
-          prevEnabled = @sync.enabled
-          @sync.enabled = false
         @_storage.remove().then(=>
           @_storage.set(options)
         ).then =>
-          @sync.enabled = prevEnabled if @sync?
           @loadOptions({retry: retry - 1})
 
   ###*
@@ -262,8 +146,8 @@ class Options
   # @returns {Promise<OmegaOptions>} A promise that is fulfilled on ready.
   ###
   init: (startupCheck = -> true) ->
-    # startupProfileName 如果为空，就使用当前的 currentProfileName
-    # 如果没有 currentProfileName, 就使用默认的 fallbackProfileName
+    # If startupProfileName is empty, use the current currentProfileName
+    # If currentProfileName is not set, use the default fallbackProfileName
     @ready = @loadOptions().then(=>
       if startupCheck() and
       @_options['-startupProfileName']
@@ -291,13 +175,8 @@ class Options
     ).then => @getAll()
 
     @ready.then =>
-      #@sync.requestPush(@_options) if @sync?.enabled
-
       @_state.get({'firstRun': ''}).then ({firstRun}) =>
         @onFirstRun(firstRun) if firstRun
-
-      if @_options['-downloadInterval'] > 0
-        @updateProfile()
 
     return @ready
 
@@ -342,10 +221,28 @@ class Options
           color: '#00cccc'
         )
       version = changes['schemaVersion'] = options['schemaVersion'] = 2
+    if options?['-downloadInterval']?
+      delete options['-downloadInterval']
+    # Drop online-only fields & legacy attached rule lists on load/restore.
+    attachedRuleLists = {}
     OmegaPac.Profiles.each options, (key, profile) ->
-      if profile.syncOptions is 'disabled'
-        delete profile['syncOptions']
-        delete profile['syncError']
+      if profile.profileType == 'RuleListProfile' and
+      profile.name.indexOf('__ruleListOf_') == 0
+        attachedRuleLists[profile.name] = profile.defaultProfileName or 'direct'
+    OmegaPac.Profiles.each options, (key, profile) ->
+      if profile.profileType == 'SwitchProfile' and
+      attachedRuleLists[profile.defaultProfileName]?
+        profile.defaultProfileName =
+          attachedRuleLists[profile.defaultProfileName]
+      delete profile['sourceUrl']
+      delete profile['pacUrl']
+      delete profile['headers']
+      delete profile['lastUpdate']
+      delete profile['sha256']
+      delete profile['syncOptions']
+      delete profile['syncError']
+    for attachedName of attachedRuleLists
+      delete options[OmegaPac.Profiles.nameAsKey(attachedName)]
     if version == 2
       # Current schemaVersion.
       Promise.resolve([options, changes])
@@ -381,9 +278,6 @@ class Options
     options ?= @getDefaultOptions()
     _options = @parseOptions(options)
     @upgrade(_options).then ([opt]) =>
-      # Disable syncing when resetting to avoid affecting sync storage.
-      @sync.enabled = false if @sync?
-      @_state.remove(['syncOptions'])
       @_watchStop?()
       @_watchStop = null
       @_storage.remove().then(=>
@@ -474,7 +368,6 @@ class Options
       else
         @_setAvailableProfiles() if profilesChanged
     if args?.persist ? true
-      @sync?.requestPush(changes) if @sync?.enabled
       for key in removed
         delete changes[key]
       @_storage.set(changes).then =>
@@ -508,8 +401,6 @@ class Options
       quickSwitchProfiles = @_cleanUpQuickSwitchProfiles(quickSwitchProfiles)
       if changes['-enableQuickSwitch']? or quickSwitchProfiles?
         @reloadQuickSwitch()
-      if changes['-downloadInterval']?
-        @schedule 'updateProfile', @_options['-downloadInterval']
       if changes['-showInspectMenu']? or changes == @_options
         showMenu = @_options['-showInspectMenu']
         if not showMenu?
@@ -700,16 +591,6 @@ class Options
     else
       applyProxy = @proxyImpl.applyProfile(profile, profile, @_options)
 
-    return applyProxy if options? and options.update == false
-
-    applyProxy.then =>
-      return unless @_options['-downloadInterval'] > 0
-      return unless @_currentProfileName == profile.name
-      updateProfiles = []
-      for key, name of @_watchingProfiles
-        updateProfiles.push(name)
-      if updateProfiles.length > 0
-        @updateProfile(updateProfiles)
     return applyProxy
 
   ###*
@@ -745,18 +626,6 @@ class Options
     Promise.resolve()
 
   ###*
-  # Schedule a task that runs every periodInMinutes.
-  # In base class, this method is not implemented and will not do anything.
-  # @param {string} name The name of the schedule. If there is a previous
-  # schedule with the same name, it will be replaced by the new one.
-  # @param {number} periodInMinutes The interval of the schedule
-  # @param {function} callback The callback to call when the task runs
-  # @returns {Promise} A promise which is fulfilled when the schedule is set
-  ###
-  schedule: (name, periodInMinutes, callback) ->
-    Promise.resolve()
-
-  ###*
   # Return true if the match result of current profile does not change with URLs
   # @returns {bool} Whether @match always return the same result for requests
   ###
@@ -766,68 +635,6 @@ class Options
     currentProfile = @currentProfile()
     return false if OmegaPac.Profiles.isInclusive(currentProfile)
     return true
-
-  ###*
-  # Update the profile by name.
-  # @param {(string|string[]|null)} name The name of the profiles,
-  # or null for all.
-  # @param {?bool} opt_bypass_cache Do not read from the cache if true
-  # @returns {Promise<Object.<string,({}|Error)>>} A map from keys to updated
-  # profiles or errors.
-  # A value is an error if `value instanceof Error`. Otherwise the value is an
-  # updated profile.
-  ###
-  updateProfile: (name, opt_bypass_cache) ->
-#    @log.method('Options#updateProfile', this, arguments)
-    results = {}
-    OmegaPac.Profiles.each @_options, (key, profile) =>
-      if name?
-        if Array.isArray(name)
-          return unless name.indexOf(profile.name) >= 0
-        else
-          return unless profile.name == name
-      url = OmegaPac.Profiles.updateUrl(profile)
-      if url
-        type_hints = OmegaPac.Profiles.updateContentTypeHints(profile)
-        headers = {}
-        if profile.headers
-          for header in profile.headers
-            # Being defensive here: filter out headers with empty names
-            headers[header.name] = header.value if header.name
-        fetchResult = @fetchUrl(url, headers, opt_bypass_cache, type_hints)
-        results[key] = fetchResult.then((data) =>
-          # Errors and unsuccessful response codes shoud have been already
-          # rejected by fetchUrl and will not end up here.
-          # So empty data indicates success without any update (e.g. 304).
-          return profile unless data
-          generateSHA256(data).then((dataSHA256) =>
-            profile = OmegaPac.Profiles.byKey(key, @_options)
-            profile.lastUpdate = new Date().toISOString()
-            if OmegaPac.Profiles.update(profile, data) or not profile.sha256
-              profile.sha256 =  dataSHA256
-              OmegaPac.Profiles.dropCache(profile)
-              changes = {}
-              changes[key] = profile
-              @_setOptions(changes).return(profile)
-            else
-              return profile
-          )
-        ).catch (reason) ->
-          if reason instanceof Error then reason else new Error(reason)
-
-    Promise.props(results)
-
-  ###*
-  # Make an HTTP GET request to fetch the content of the url.
-  # In base class, this method is not implemented and will always reject.
-  # @param {string} url The name of the profiles,
-  # @param {?{}} headers Optional headers dictionary with name-value pairs
-  # @param {?bool} opt_bypass_cache Do not read from the cache if true
-  # @param {?string} opt_type_hints MIME type hints for downloaded content.
-  # @returns {Promise<String>} The text content fetched from the url
-  ###
-  fetchUrl: (url, headers, opt_bypass_cache, opt_type_hints) ->
-    Promise.reject new Error('not implemented')
 
   _replaceRefChanges: (fromName, toName, changes) ->
     changes ?= {}
@@ -1143,120 +950,5 @@ class Options
       })
       @currentProfileChanged('external')
       return
-
-  ###*
-  # Switch options syncing on and off.
-  # @param {boolean} enabled Whether to enable syncing
-  # @param {?{}} args Extra arguments
-  # @param {boolean=false} args.force If true, overwrite options when conflict
-  # @returns {Promise} A promise which is fulfilled when the syncing is switched
-  ###
-  setOptionsSync: (enabled, args = {}) ->
-    @log.method('Options#setOptionsSync', this, arguments)
-    if not @sync?
-      return Promise.reject(new Error('Options syncing is unsupported.'))
-    @_state.get({
-      'syncOptions': '', lastGistCommit: ''
-    }).then ({syncOptions, lastGistCommit}) =>
-      if not enabled
-        if syncOptions == 'sync'
-          @_state.set({'syncOptions': 'disabled'})
-        @sync.enabled = false
-        @_syncWatchStop?()
-        @_syncWatchStop = null
-        @sync.destroy()
-        return
-
-      if syncOptions == 'conflict'
-        if not args.force
-          return Promise.reject(new Error(
-            'Syncing not enabled due to conflict. Retry with force to overwrite
-            local options and enable syncing.'))
-      return if syncOptions == 'sync'
-      { gistId, gistToken, username } = args
-      syncBackendType = args.syncBackendType or 'gist'
-      @sync.init({
-        gistId, gistToken, username, syncBackendType, withRemoteData: true
-      }).then( ({
-        options: remoteOptions, lastGistCommit: remoteLastGistCommit
-      }) =>
-        @_state.set({
-          'syncOptions': 'sync'
-          'syncBackendType': syncBackendType
-          'gistId': gistId
-          'gistToken': gistToken
-          'syncUsername': username || ''
-        }).then =>
-          if syncOptions == 'conflict'
-            # Try to re-init options from sync.
-            @sync.enabled = false
-            @_watchStop?()
-            @_watchStop = null
-            @_storage.remove().then( =>
-              if remoteOptions
-                console.log('flush data')
-                @sync.flush({data: remoteOptions})
-            ).then =>
-              @sync.enabled = true
-              @init().then( =>
-                if remoteOptions
-                  if remoteOptions['-startupProfileName']
-                    console.log('apply startup')
-                    @applyProfile(remoteOptions['-startupProfileName'])
-                if args.useBuiltInSync
-                  @sync.toggleBuiltInSync(true)
-                else
-                  @sync.toggleBuiltInSync(false)
-              ).then( =>
-                @updateProfile()
-              )
-          else
-            if remoteOptions?.schemaVersion
-              @sync.flush({data: remoteOptions}).then( =>
-                @sync.enabled = false
-                @_state.set({'syncOptions': 'conflict'})
-                return
-              )
-            else
-              @sync.enabled = true
-              @_syncWatchStop?()
-              @sync.requestPush(@_options)
-              @_syncWatchStop =
-                @sync.watchAndPull(@_storage, @updateProfile.bind(this))
-              if args.useBuiltInSync
-                @sync.toggleBuiltInSync(true)
-              else
-                @sync.toggleBuiltInSync(false)
-              return
-      )
-
-  ###*
-  # Clear the sync storage, resetting syncing state to pristine.
-  # @returns {Promise} A promise which is fulfilled when the syncing is reset.
-  ###
-  resetOptionsSync: (args) ->
-    @log.method('Options#resetOptionsSync', this, arguments)
-    if not @sync?
-      return Promise.reject(new Error('Options syncing is unsupported.'))
-    @sync.enabled = false
-    @_syncWatchStop?()
-    @_syncWatchStop = null
-    @_state.set({
-      'syncOptions': 'conflict'
-      'gistId': args.gistId
-      'gistToken': args.gistToken
-      'syncUsername': args.username || ''
-      'syncBackendType': args.syncBackendType || ''
-    }).then( =>
-      @sync.init(args)
-    ).then( =>
-      @sync.storage.remove()
-    ).then( =>
-      @_state.set({'syncOptions': 'pristine'})
-    )
-
-  checkOptionsSyncChange: ->
-    if @sync and @sync.enabled
-      @sync.checkChange()
 
 module.exports = Options

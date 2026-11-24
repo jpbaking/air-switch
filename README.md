@@ -1,4 +1,4 @@
-ZeroOmega, forked from SwitchyOmega compatible with manifest v3
+AirSwitch, forked from SwitchyOmega compatible with manifest v3
 ============
 
 [Chrome Web Store](https://chromewebstore.google.com/detail/pfnededegaaopdmhkdmcofjmoldfiped)
@@ -35,7 +35,7 @@ Development status
 
 ## PAC generator
 This project contains a PAC generating module called `omega-pac`, which handles
-the profiles model and compile profiles into PAC scripts. This module is standalone
+the profile model and compiles profiles into PAC scripts. This module is standalone
 and can be published to npm when the documentation is ready.
 
 ## Options manager
@@ -60,7 +60,7 @@ browser API calls.
 
 Each target folder should contain an extended `OmegaTarget` object, which
 contains subclasses of the abstract base classes like `Options`. The classes
-contains implementation of the abstract methods, and can override other methods
+contain implementations of the abstract methods, and can override other methods
 at will.
 
 A target can copy the files in `omega-web` into its build to provide a web-based
@@ -77,17 +77,13 @@ Chromium-based browsers and also as a Firefox Addon as mentioned above.
 ## Translation
 
 Translation is hosted on Weblate. If you want to help improve the translated
-text or start translation for your language, please follow the link of the picture
-below.
-
-本项目翻译由Weblate托管。如果您希望帮助改进翻译，或将本项目翻译成一种新的语言，请
-点击下方图片链接进入翻译。
+text or start translating for your language, please click the image below.
 
 [![Translation status](https://hosted.weblate.org/widgets/switchyomega/-/287x66-white.png)](https://hosted.weblate.org/engage/switchyomega/?utm_source=widget)
 
 ## Building the project
 
-ZeroOmega has migrated to use npm and grunt for building. Please note that
+AirSwitch has migrated to use npm and grunt for building. Please note that
 node 20.x is required for this project.
 
 To build the project:
@@ -115,32 +111,25 @@ License
 -------
 ![GPLv3](https://www.gnu.org/graphics/gplv3-127x51.png)
 
-ZeroOmega is licensed under [GNU General Public License](https://www.gnu.org/licenses/gpl.html) Version 3 or later.
+AirSwitch is licensed under [GNU General Public License](https://www.gnu.org/licenses/gpl.html) Version 3 or later.
 
-ZeroOmega is free software: you can redistribute it and/or modify
+AirSwitch is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-ZeroOmega is distributed in the hope that it will be useful,
+AirSwitch is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with ZeroOmega.  If not, see <http://www.gnu.org/licenses/>.
+along with AirSwitch.  If not, see <http://www.gnu.org/licenses/>.
 
 Notice
 ------
 
 
-ZeroOmega currently does not have a dedicated project homepage. Please refer to this Github repository and wiki for official information.
+AirSwitch currently does not have a dedicated project homepage. Please refer to this GitHub repository and wiki for official information.
 
-ZeroOmega is not cooperating with any proxy providers, VPN providers or ISPs at the moment. No advertisement is displayed in ZeroOmega project or software. Proxy providers are welcome to recommend ZeroOmega as part of the solution in tutorials, but it must be made clear that ZeroOmega is an independent project, is not affiliated with the provider and therefore cannot provide any support on network connections or proxy technology.
-
-重要声明
---------
-
-ZeroOmega 目前没有专门的项目主页。一切信息请以 Github 上的项目和 wiki 为准。
-
-ZeroOmega 目前未与任何代理提供商、VPN提供商或 ISP 达成任何合作协议，项目或软件中不包含任何此类广告。欢迎代理提供商在教程或说明中推荐 ZeroOmega ，但请明确说明此软件是独立项目，与代理提供商无关，且不提供任何关于网络连接或代理技术的支持。
+AirSwitch is not cooperating with any proxy providers, VPN providers or ISPs at the moment. No advertisement is displayed in AirSwitch project or software. Proxy providers are welcome to recommend AirSwitch as part of the solution in tutorials, but it must be made clear that AirSwitch is an independent project, is not affiliated with the provider and therefore cannot provide any support on network connections or proxy technology.

@@ -1,35 +1,6 @@
 angular.module('omega').controller 'PacProfileCtrl', ($scope, $modal) ->
-  # coffeelint: disable=max_line_length
-
-  # https://github.com/angular/angular.js/blob/master/src/ng/directive/input.js#L13
-  $scope.urlRegex = /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/
-  # With the file: scheme added to the pattern:
-  $scope.urlWithFile = /^(ftp|http|https|file):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/
-
-  # coffeelint: enable=max_line_length
-  
-  $scope.isFileUrl = OmegaPac.Profiles.isFileUrl
-  $scope.pacUrlCtrl = {ctrl: null}
-
   set = OmegaPac.Profiles.referencedBySet($scope.profile, $scope.options)
   $scope.referenced = Object.keys(set).length > 0
-
-  oldPacUrl = null
-  oldLastUpdate = null
-  oldPacScript = null
-  onProfileChange = (profile, oldProfile) ->
-    return unless profile and oldProfile
-    if profile.pacUrl != oldProfile.pacUrl
-      if profile.lastUpdate
-        oldPacUrl = oldProfile.pacUrl
-        oldLastUpdate = profile.lastUpdate
-        oldPacScript = oldProfile.pacScript
-        profile.lastUpdate = null
-      else if oldPacUrl and profile.pacUrl == oldPacUrl
-        profile.lastUpdate = oldLastUpdate
-        profile.pacScript = oldPacScript
-    $scope.pacUrlIsFile = $scope.isFileUrl(profile.pacUrl)
-  $scope.$watch 'profile', onProfileChange, true
 
   $scope.editProxyAuth = (scheme) ->
     prop = 'all'
@@ -47,11 +18,3 @@ angular.module('omega').controller 'PacProfileCtrl', ($scope, $modal) ->
       else
         $scope.profile.auth ?= {}
         $scope.profile.auth[prop] = auth
-
-  # == Custom Headers ==
-  $scope.addHeader = ->
-    $scope.profile.headers ?= []
-    $scope.profile.headers.push({name: '', value: ''})
-
-  $scope.removeHeader = (index) ->
-    $scope.profile.headers.splice(index, 1)

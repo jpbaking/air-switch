@@ -6,11 +6,6 @@ angular.module('omega').controller 'AboutCtrl', (
     Promise.resolve(omegaDebug.downloadLog()).then( ->
       $scope.logDownloading = false
     )
-  $scope.reportIssue = ->
-    $scope.issueReporting = true
-    omegaDebug.reportIssue().then( ->
-      $scope.issueReporting = false
-    )
 
   $scope.showResetOptionsModal = ->
     $modal

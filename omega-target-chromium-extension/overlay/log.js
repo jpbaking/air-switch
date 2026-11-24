@@ -3,7 +3,7 @@ const ZeroLogFactory = ()=>{
 
   const logSequence = []
   let isRunning = false
-  let splitStr = '\n----Z-e-r-o-O-m-e-g-a--------------\n'
+  let splitStr = '\n----A-i-r-S-w-i-t-c-h--------------\n'
 
   const originConsoleLog = console.log
   const originConsoleError = console.error
@@ -49,8 +49,6 @@ const ZeroLogFactory = ()=>{
       case 'host':
       case 'port':
       case 'token':
-      case 'gistToken':
-      case 'gistId':
         return '<secret>'
       default:
         return value

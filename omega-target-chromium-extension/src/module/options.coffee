@@ -4,7 +4,6 @@ Promise = OmegaTarget.Promise
 querystring = require('querystring')
 WebRequestMonitor = require('./web_request_monitor')
 ChromePort = require('./chrome_port')
-fetchUrl = require('./fetch_url')
 Url = require('url')
 
 TEMPPROFILEKEY = 'tempProfileState'
@@ -13,7 +12,6 @@ class ChromeOptions extends OmegaTarget.Options
   _inspect: null
   _actionForUrl: null
 
-  fetchUrl: fetchUrl
   _networkInspectPorts: []
 
   constructor: (args...) ->
@@ -53,12 +51,6 @@ class ChromeOptions extends OmegaTarget.Options
       port.onDisconnect.addListener(disConnect)
     )
 
-    chrome.alarms.onAlarm.addListener (alarm) =>
-      switch alarm.name
-        when 'omega.updateProfile'
-          @ready.then( =>
-            @updateProfile()
-          )
     chrome.contextMenus?.onClicked.addListener((info, tab) =>
       @ready.then( =>
         switch info.menuItemId
@@ -138,23 +130,6 @@ class ChromeOptions extends OmegaTarget.Options
         _tempProfileActive: @_tempProfileActive
       }
       chrome.storage.session.set(_zeroState)
-  updateProfile: (args...) ->
-    super(args...).then (results) ->
-      error = false
-      for own profileName, result of results
-        if result instanceof Error
-          error = true
-          break
-      if error
-        # TODO(catus): Find a better way to notify the user.
-        ###
-        @setBadge(
-          text: '!'
-          color: '#faa732'
-          title: chrome.i18n.getMessage('browserAction_titleDownloadFail')
-        )
-        ###
-      return results
 
   _proxyNotControllable: null
   proxyNotControllable: -> @_proxyNotControllable
@@ -286,16 +261,6 @@ class ChromeOptions extends OmegaTarget.Options
             })
         port.onDisconnect.addListener =>
           delete @_tabRequestInfoPorts[tabId] if tabId?
-
-  schedule: (name, periodInMinutes) ->
-    name = 'omega.' + name
-    if periodInMinutes < 0
-      chrome.alarms.clear(name)
-    else
-      chrome.alarms.create(name, {
-        periodInMinutes: periodInMinutes
-      })
-    Promise.resolve()
 
   printFixedProfile: (profile) ->
     return unless profile.profileType == 'FixedProfile'

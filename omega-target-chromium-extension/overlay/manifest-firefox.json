@@ -47,7 +47,7 @@
   "host_permissions": ["<all_urls>"],
   "browser_specific_settings": {
     "gecko": {
-      "id": "suziwen1@gmail.com",
+      "id": "air-switch@jpbaking.github.io",
       "strict_min_version": "112.0"
     }
   }
